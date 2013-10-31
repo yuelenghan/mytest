@@ -58,6 +58,8 @@ public class ReadExcel {
                         cellContent = cell.getStringCellValue();
                     }
 
+                    cellContent = cellContent.trim();
+
                     if (j == 0) {
                         map.put("name", cellContent);
                     }
