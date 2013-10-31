@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +50,8 @@ public class Client {
             formParams.add(new BasicNameValuePair("selCounty", "市区"));
             formParams.add(new BasicNameValuePair("txtAddress", map.get("addr")));
 
-            formParams.add(new BasicNameValuePair("__EVENTVALIDATION", "/wEWFQKM3e+UDQLhtt72DwLEhISFCwKns/iwBALejNrhBAKF+7KiBALamZbZDwLEku2wCAKvkfKWBgKvkfaWBgKvkcqWBgKukfKWBgKukfaWBgKtkfKWBgKtkfaWBgLw/pT7CgLf4MyiAgLby9TmDQLWh6WdCQLv7ITZAgLStLntCdbm+KV2C8OwxlcD7AOiVp4RKH+X"));
-            formParams.add(new BasicNameValuePair("__VIEWSTATE", "/wEPDwUJNTIxMTA0MDUzD2QWAgIDD2QWAgINDw8WAh4ISW1hZ2VVcmwFHGltZy/lhajnnIEvaW1nL2Jhb214eF9xci5qcGdkZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WBAUFcmRNYW4FB3JkV29tYW4FB3JkV29tYW4FCGlCdG5TYXZlufyIjBSTH7xqiOtgB9z1Y8MPRzI="));
+            formParams.add(new BasicNameValuePair("__EVENTVALIDATION", "/wEWFQKG9NCpCgLhtt72DwLEhISFCwKns/iwBALejNrhBAKF+7KiBALamZbZDwLEku2wCAKvkfKWBgKvkfaWBgKvkcqWBgKukfKWBgKukfaWBgKtkfKWBgKtkfaWBgLw/pT7CgLf4MyiAgLby9TmDQLWh6WdCQLv7ITZAgLStLntCXNs++R7aDP9vZq91NSrR5jrBGt5"));
+            formParams.add(new BasicNameValuePair("__VIEWSTATE", "/wEPDwUJNTIxMTA0MDUzD2QWAgIDD2QWBgIJDxAWAh4IZGlzYWJsZWQFCGRpc2FibGVkZBQrAQECBmQCCg8QFgYeDURhdGFUZXh0RmllbGQFCkNvdW50eU5hbWUeDkRhdGFWYWx1ZUZpZWxkBQhDb3VudHlJZB4LXyFEYXRhQm91bmRnEBUCBuW4guWMugnmv4nmuqrljr8VAgbluILljLoJ5r+J5rqq5Y6/FCsDAmdnZGQCDQ8PFgIeCEltYWdlVXJsBRxpbWcv5reu5YyXL2ltZy9iYW9teHhfcXIuanBnZGQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgQFBXJkTWFuBQdyZFdvbWFuBQdyZFdvbWFuBQhpQnRuU2F2ZReB33HbtqGWaU8NFYH/8cmu10CK"));
             formParams.add(new BasicNameValuePair("hidCounty", "市区"));
             formParams.add(new BasicNameValuePair("iBtnSave.x", "0"));
             formParams.add(new BasicNameValuePair("iBtnSave.y", "0"));
@@ -58,10 +59,12 @@ public class Client {
             HttpClient client = new DefaultHttpClient();
             HttpEntity entity = null;
             entity = new UrlEncodedFormEntity(formParams, HTTP.UTF_8);
-            HttpPost request = new HttpPost("http://wjf.ahjtxx.com/wjfqs/SignUp.aspx");
+            HttpPost request = new HttpPost("http://www.hbjjzd.cn/wjf/SignUp.aspx");
             request.setEntity(entity);
             HttpResponse response = client.execute(request);
             System.out.println(response.getStatusLine());
+
+            //System.out.println(EntityUtils.toString(response.getEntity()));
             count ++;
         }
 
