@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						 http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+						 http://www.springframework.org/schema/context
+						 http://www.springframework.org/schema/context/spring-context-3.1.xsd
+						http://www.springframework.org/schema/aop
+						 http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+           				http://www.springframework.org/schema/tx
+           				 http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+	<!-- 开启spring的annotation配置方式 -->
+	<context:annotation-config />
+	<aop:aspectj-autoproxy />
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- 自动扫描Component -->
+	<context:component-scan base-package="test" />
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+				<value>classpath:hibernate.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.userName}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- 配置sessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+
+		<!-- 配置hibernate属性 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					${hibernate.dialect}
+				</prop>
+				<prop key="hibernate.hbm2ddl.auto">
+					${hibernate.hbm2ddl.auto}
+				</prop>
+				<prop key="hibernate.show_sql">
+					${hibernate.show_sql}
+				</prop>
+				<prop key="hibernate.format_sql">
+					${hibernate.format_sql}
+				</prop>
+			</props>
+		</property>
+
+		<!-- 配置实体类（自动扫描） -->
+		<property name="packagesToScan">
+			<list>
+				<value>test.model</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置hibernateTemplate -->
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 配置事务传播特性（增删改应用事务，其余方法只读） -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="create*" propagation="REQUIRED"
+				rollback-for="Exception" />
+			<tx:method name="delete*" propagation="REQUIRED"
+				rollback-for="Exception" />
+			<tx:method name="up*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 配置横切性关注点，并将事务的传播特性应用到关注点上 -->
+	<aop:config>
+		<aop:pointcut id="allServiceMethodForTx"
+			expression="execution(* test.service.impl.*.*(..))" />
+		<aop:advisor pointcut-ref="allServiceMethodForTx"
+			advice-ref="txAdvice" />
+	</aop:config>
+
+	<!-- 在所有manager的实现类上加日志 -->
+	<bean id="logUtil" class="test.util.LogUtil" />
+	<aop:config>
+		<aop:pointcut expression="execution(* test.service.impl.*.*(..))"
+			id="allServiceMethodForLog" />
+		<aop:aspect id="logUtilAspect" ref="logUtil">
+			<aop:before method="before" pointcut-ref="allServiceMethodForLog" />
+			<aop:after-returning method="afterReturn"
+				pointcut-ref="allServiceMethodForLog" />
+		</aop:aspect>
+	</aop:config>
+
+	<!-- 在所有manager实现类的方法上加运行时间 -->
+	<bean id="methodEfficiencyUtil" class="test.util.MethodEfficiencyUtil" />
+	<aop:config>
+		<aop:pointcut expression="execution(* test.service.impl.*.*(..))"
+			id="allServiceMethodForTime" />
+		<aop:aspect id="methodEfficiencyUtilAspect" ref="methodEfficiencyUtil">
+			<aop:around method="around" pointcut-ref="allServiceMethodForTime" />
+		</aop:aspect>
+	</aop:config>
+
+</beans>
